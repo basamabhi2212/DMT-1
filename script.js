@@ -1,78 +1,219 @@
+const API_URL = 'http://localhost:3000/api'; // CHANGE THIS FOR DEPLOYMENT
+
 document.addEventListener('DOMContentLoaded', () => {
     const tripForm = document.getElementById('trip-form');
     const routeTypeSelect = document.getElementById('route-type');
     const dropAddressGroup = document.getElementById('drop-address-group');
-    const tripDetailsDiv = document.getElementById('trip-details');
+    const bookingSection = document.getElementById('booking-section');
+    const reportsSection = document.getElementById('reports-section');
+    const reportsTableBody = document.querySelector('#trips-table tbody');
+    const modal = document.getElementById('modal');
+    const closeModalBtn = document.querySelector('.close-button');
     const tripPriceInput = document.getElementById('trip-price');
+    const driverNameInput = document.getElementById('driver-name');
+    const driverNumberInput = document.getElementById('driver-number');
+    const completeTripBtn = document.getElementById('complete-trip-btn');
+
+    let currentTripId = null;
 
     // Show/hide drop-off address based on route type
     routeTypeSelect.addEventListener('change', () => {
+        const dropAddressInput = document.getElementById('drop-address');
         if (routeTypeSelect.value === 'one-way') {
             dropAddressGroup.classList.remove('hidden');
-            document.getElementById('drop-address').setAttribute('required', 'required');
+            dropAddressInput.setAttribute('required', 'required');
         } else {
             dropAddressGroup.classList.add('hidden');
-            document.getElementById('drop-address').removeAttribute('required');
+            dropAddressInput.removeAttribute('required');
         }
     });
 
     // Handle form submission
-    tripForm.addEventListener('submit', (e) => {
+    tripForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Get form values
-        const customerName = document.getElementById('customer-name').value;
-        const customerMobile = document.getElementById('customer-mobile').value;
-        const pickAddress = document.getElementById('pick-address').value;
-        const dropAddress = document.getElementById('drop-address').value;
-        const startTime = new Date(document.getElementById('start-time').value);
-        const endTime = new Date(document.getElementById('end-time').value);
-        const routeType = routeTypeSelect.value;
-        const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60));
+        const tripData = {
+            customerName: document.getElementById('customer-name').value,
+            mobileNumber: document.getElementById('customer-mobile').value,
+            routeType: document.getElementById('route-type').value,
+            tripType: document.getElementById('trip-type').value,
+            pickAddress: document.getElementById('pick-address').value,
+            startTime: document.getElementById('start-time').value,
+            endTime: document.getElementById('end-time').value,
+            dropAddress: document.getElementById('route-type').value === 'one-way' ? document.getElementById('drop-address').value : 'N/A',
+            vehicleType: document.getElementById('vehicle-type').value
+        };
 
-        // Generate a unique Trip ID
-        const tripId = generateTripId();
+        try {
+            const response = await fetch(`${API_URL}/trips`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(tripData)
+            });
 
-        // Display trip details
-        document.getElementById('display-trip-id').textContent = tripId;
-        const tripLink = document.getElementById('trip-link');
-        tripLink.href = `https://your-github-username.github.io/your-repo/${tripId}`;
-        document.getElementById('display-customer-name').textContent = customerName;
-        document.getElementById('display-customer-mobile').textContent = customerMobile;
-        document.getElementById('display-pick-address').textContent = pickAddress;
-        document.getElementById('display-start-time').textContent = startTime.toLocaleString();
-        document.getElementById('display-end-time').textContent = endTime.toLocaleString();
-        document.getElementById('display-duration').textContent = `${totalMinutes} minutes`;
-        
-        // Handle drop address display
-        if (routeType === 'one-way') {
-            document.getElementById('display-drop-address').textContent = dropAddress;
-            document.getElementById('trip-details').querySelector('p:nth-of-type(6)').style.display = 'block';
-        } else {
-            document.getElementById('display-drop-address').textContent = 'N/A';
-            document.getElementById('trip-details').querySelector('p:nth-of-type(6)').style.display = 'none';
+            if (!response.ok) throw new Error('Failed to book trip');
+            const newTrip = await response.json();
+            alert(`Trip booked successfully! Trip ID: ${newTrip.tripId}`);
+            tripForm.reset();
+            fetchTrips();
+        } catch (error) {
+            console.error('Error booking trip:', error);
+            alert('Failed to book trip. Please try again.');
         }
-
-        // Show the trip details section
-        tripDetailsDiv.classList.remove('hidden');
     });
 
-    // Calculate total bill on price input
+    // Handle modal display and data population
+    reportsTableBody.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+            const tripId = e.target.closest('tr').dataset.tripId;
+            showTripDetails(tripId);
+        }
+    });
+
+    async function showTripDetails(tripId) {
+        try {
+            const response = await fetch(`${API_URL}/trips/${tripId}`);
+            if (!response.ok) throw new Error('Trip not found');
+            const trip = await response.json();
+
+            // Populate modal with trip data
+            document.getElementById('display-trip-id').textContent = trip.tripId;
+            document.getElementById('display-customer-name').textContent = trip.customerName;
+            document.getElementById('display-customer-mobile').textContent = trip.mobileNumber;
+            document.getElementById('display-pick-address').textContent = trip.pickAddress;
+            document.getElementById('display-drop-address').textContent = trip.dropAddress;
+            document.getElementById('display-start-time').textContent = new Date(trip.startTime).toLocaleString();
+            document.getElementById('display-end-time').textContent = new Date(trip.endTime).toLocaleString();
+            document.getElementById('display-duration').textContent = calculateDuration(trip.startTime, trip.endTime);
+
+            // Populate mutable fields
+            driverNameInput.value = trip.driverName || '';
+            driverNumberInput.value = trip.driverNumber || '';
+            tripPriceInput.value = trip.tripPrice || '';
+            document.getElementById('display-gst').textContent = `₹${(trip.gst || 0).toFixed(2)}`;
+            document.getElementById('display-total-bill').textContent = `₹${(trip.totalBill || 0).toFixed(2)}`;
+
+            currentTripId = trip.tripId;
+            modal.classList.remove('hidden');
+        } catch (error) {
+            console.error('Error fetching trip details:', error);
+            alert('Could not fetch trip details.');
+        }
+    }
+
+    // Handle price input for calculations
     tripPriceInput.addEventListener('input', () => {
         const tripPrice = parseFloat(tripPriceInput.value) || 0;
         const gst = tripPrice * 0.18;
         const totalBill = tripPrice + gst;
 
-        document.getElementById('display-gst').textContent = gst.toFixed(2);
-        document.getElementById('display-total-bill').textContent = totalBill.toFixed(2);
+        document.getElementById('display-gst').textContent = `₹${gst.toFixed(2)}`;
+        document.getElementById('display-total-bill').textContent = `₹${totalBill.toFixed(2)}`;
     });
 
-    // Function to generate a Trip ID
-    function generateTripId() {
-        const prefix = "DDHYD";
-        const tripCount = localStorage.getItem('tripCount') ? parseInt(localStorage.getItem('tripCount')) + 1 : 1;
-        localStorage.setItem('tripCount', tripCount);
-        const paddedCount = String(tripCount).padStart(3, '0');
-        return `${prefix}${paddedCount}`;
+    // Handle trip completion
+    completeTripBtn.addEventListener('click', async () => {
+        if (!currentTripId) return;
+
+        const updatedData = {
+            driverName: driverNameInput.value,
+            driverNumber: driverNumberInput.value,
+            tripPrice: parseFloat(tripPriceInput.value) || 0,
+            gst: (parseFloat(tripPriceInput.value) * 0.18) || 0,
+            totalBill: (parseFloat(tripPriceInput.value) * 1.18) || 0,
+            status: 'completed'
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/trips/${currentTripId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData)
+            });
+
+            if (!response.ok) throw new Error('Failed to update trip');
+            alert('Trip updated successfully!');
+            modal.classList.add('hidden');
+            fetchTrips();
+        } catch (error) {
+            console.error('Error completing trip:', error);
+            alert('Failed to complete trip. Please try again.');
+        }
+    });
+
+    // Close modal
+    closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.add('hidden');
+    });
+
+    // Navigation and data fetching
+    document.querySelector('nav a[href="#reports-section"]').addEventListener('click', (e) => {
+        e.preventDefault();
+        bookingSection.classList.add('hidden');
+        reportsSection.classList.remove('hidden');
+        fetchTrips();
+    });
+
+    document.querySelector('nav a[href="#booking-section"]').addEventListener('click', (e) => {
+        e.preventDefault();
+        reportsSection.classList.add('hidden');
+        bookingSection.classList.remove('hidden');
+    });
+
+    async function fetchTrips() {
+        try {
+            const response = await fetch(`${API_URL}/trips`);
+            if (!response.ok) throw new Error('Failed to fetch trips');
+            const trips = await response.json();
+            renderTrips(trips);
+        } catch (error) {
+            console.error('Error fetching trips:', error);
+            reportsTableBody.innerHTML = '<tr><td colspan="4">Failed to load trips.</td></tr>';
+        }
+    }
+
+    function renderTrips(trips) {
+        reportsTableBody.innerHTML = '';
+        if (trips.length === 0) {
+            reportsTableBody.innerHTML = '<tr><td colspan="4">No trips found.</td></tr>';
+            return;
+        }
+
+        trips.forEach(trip => {
+            const row = document.createElement('tr');
+            row.dataset.tripId = trip.tripId;
+
+            const statusText = getStatusText(trip);
+            const statusClass = getStatusClass(trip.status);
+
+            row.innerHTML = `
+                <td>${trip.tripId}</td>
+                <td>${trip.customerName}</td>
+                <td><span class="${statusClass}">${statusText}</span></td>
+                <td><button>View Details</button></td>
+            `;
+            reportsTableBody.appendChild(row);
+        });
+    }
+
+    function getStatusText(trip) {
+        if (trip.status === 'completed') return 'Completed';
+        if (trip.driverName) return 'In Progress';
+        return 'Created';
+    }
+
+    function getStatusClass(status) {
+        switch(status) {
+            case 'completed': return 'status-completed';
+            case 'in-progress': return 'status-in-progress';
+            default: return 'status-created';
+        }
+    }
+
+    function calculateDuration(start, end) {
+        const diff = new Date(end) - new Date(start);
+        const minutes = Math.floor(diff / (1000 * 60));
+        return `${minutes} minutes`;
     }
 });
