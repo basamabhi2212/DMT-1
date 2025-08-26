@@ -1,92 +1,5 @@
-:root {
-    --primary-color: #5cb85c;
-    --secondary-color: #4cae4c;
-    --background-color: #f4f4f4;
-    --text-color: #333;
-    --border-color: #ddd;
-    --white: #fff;
-    --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+/* Add these new styles to your existing style.css file */
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--background-color);
-    margin: 0;
-    color: var(--text-color);
-    line-height: 1.6;
-}
-
-header {
-    background-color: var(--primary-color);
-    color: var(--white);
-    padding: 1rem 0;
-    text-align: center;
-}
-
-header nav a {
-    color: var(--white);
-    text-decoration: none;
-    padding: 0 15px;
-    font-weight: bold;
-}
-
-main {
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 0 20px;
-}
-
-section {
-    background: var(--white);
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-}
-
-.form-container, .reports-container {
-    padding: 20px;
-}
-
-h2 {
-    text-align: center;
-    color: var(--primary-color);
-    margin-bottom: 20px;
-}
-
-form label, .input-group {
-    display: block;
-    margin-bottom: 5px;
-}
-
-form input, form select, button {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    box-sizing: border-box;
-}
-
-button {
-    background-color: var(--primary-color);
-    color: var(--white);
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: bold;
-    transition: background-color 0.3s;
-}
-
-button:hover {
-    background-color: var(--secondary-color);
-}
-
-.hidden {
-    display: none;
-}
-
-/* Reports Table */
 #trips-table {
     width: 100%;
     border-collapse: collapse;
@@ -94,13 +7,13 @@ button:hover {
 }
 
 #trips-table th, #trips-table td {
-    border: 1px solid var(--border-color);
+    border: 1px solid #ddd;
     padding: 12px;
     text-align: left;
 }
 
 #trips-table th {
-    background-color: #e9ecef;
+    background-color: #f2f2f2;
     font-weight: bold;
 }
 
@@ -108,47 +21,52 @@ button:hover {
     background-color: #f9f9f9;
 }
 
-/* Modal for Trip Details */
+.status-created {
+    color: #007bff; /* Blue */
+    font-weight: bold;
+}
+
+.status-in-progress {
+    color: #ffc107; /* Orange */
+    font-weight: bold;
+}
+
+.status-completed {
+    color: #28a745; /* Green */
+    font-weight: bold;
+}
+
+/* Modal styles (as per your screenshot) */
 .modal {
+    display: none; /* Hide by default */
     position: fixed;
     z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0,0,0,0.4);
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
 }
 
 .modal-content {
-    background-color: var(--white);
-    padding: 25px;
-    border-radius: 10px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     width: 90%;
-    max-width: 600px;
-    box-shadow: var(--shadow);
+    max-width: 500px;
     position: relative;
 }
 
 .close-button {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
     font-weight: bold;
+    color: #aaa;
     cursor: pointer;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: var(--text-color);
-    text-decoration: none;
-}
-
-hr {
-    border: 0;
-    height: 1px;
-    background-color: var(--border-color);
-    margin: 20px 0;
 }
