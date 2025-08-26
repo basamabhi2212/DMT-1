@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api'; // Replace with your live API URL
+const API_URL = 'https://<your-project-name>.vercel.app/api'; // CHANGE THIS FOR DEPLOYMENT
 
 document.addEventListener('DOMContentLoaded', () => {
     const tripForm = document.getElementById('trip-form');
@@ -57,10 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const newTrip = await response.json();
             alert(`Trip booked successfully! Trip ID: ${newTrip.tripId}`);
             tripForm.reset();
-            fetchTrips();
+            fetchTrips(); // Refresh dashboard
         } catch (error) {
             console.error('Error booking trip:', error);
-            alert('Failed to book trip. Please try again.');
+            alert('Failed to book trip. Check backend connection.');
         }
     });
 
@@ -97,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentTripId = trip.tripId;
             modal.classList.remove('hidden');
-            modal.style.display = 'flex'; // Show modal
         } catch (error) {
             console.error('Error fetching trip details:', error);
             alert('Could not fetch trip details.');
@@ -137,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error('Failed to update trip');
             alert('Trip updated successfully!');
             modal.classList.add('hidden');
-            modal.style.display = 'none'; // Hide modal
             fetchTrips();
         } catch (error) {
             console.error('Error completing trip:', error);
@@ -146,15 +144,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Close modal
-    closeModalBtn.addEventListener('click', () => {
-        modal.classList.add('hidden');
-        modal.style.display = 'none'; // Hide modal
-    });
+    closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
     window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.classList.add('hidden');
-            modal.style.display = 'none'; // Hide modal
-        }
+        if (e.target === modal) modal.classList.add('hidden');
     });
 
     // Navigation and data fetching
@@ -162,6 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         bookingSection.classList.add('hidden');
         reportsSection.classList.remove('hidden');
+        bookingNav.classList.remove('active');
+        reportsNav.classList.add('active');
         fetchTrips();
     });
 
@@ -169,6 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         reportsSection.classList.add('hidden');
         bookingSection.classList.remove('hidden');
+        reportsNav.classList.remove('active');
+        bookingNav.classList.add('active');
     });
 
     async function fetchTrips() {
@@ -201,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${trip.tripId}</td>
                 <td>${trip.customerName}</td>
                 <td><span class="${statusClass}">${statusText}</span></td>
-                <td><button>View Details</button></td>
+                <td><button class="details-btn">View Details</button></td>
             `;
             reportsTableBody.appendChild(row);
         });
@@ -224,4 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const minutes = Math.floor(diff / (1000 * 60));
         return `${minutes} minutes`;
     }
+    
+    // Initial fetch of trips when the page loads
+    fetchTrips();
 });
