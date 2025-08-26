@@ -1,4 +1,4 @@
-const API_URL = 'https://<your-project-name>.vercel.app/api'; // CHANGE THIS FOR DEPLOYMENT
+const API_URL = 'https://dmt-1.vercel.app/api'; // CHANGE THIS FOR DEPLOYMENT
 
 document.addEventListener('DOMContentLoaded', () => {
     const tripForm = document.getElementById('trip-form');
