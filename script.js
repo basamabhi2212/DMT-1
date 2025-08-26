@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api'; // CHANGE THIS FOR DEPLOYMENT
+const API_URL = 'http://localhost:3000/api'; // Replace with your live API URL
 
 document.addEventListener('DOMContentLoaded', () => {
     const tripForm = document.getElementById('trip-form');
@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const dropAddressGroup = document.getElementById('drop-address-group');
     const bookingSection = document.getElementById('booking-section');
     const reportsSection = document.getElementById('reports-section');
+    const bookingNav = document.getElementById('booking-nav');
+    const reportsNav = document.getElementById('reports-nav');
     const reportsTableBody = document.querySelector('#trips-table tbody');
     const modal = document.getElementById('modal');
     const closeModalBtn = document.querySelector('.close-button');
@@ -95,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentTripId = trip.tripId;
             modal.classList.remove('hidden');
+            modal.style.display = 'flex'; // Show modal
         } catch (error) {
             console.error('Error fetching trip details:', error);
             alert('Could not fetch trip details.');
@@ -134,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error('Failed to update trip');
             alert('Trip updated successfully!');
             modal.classList.add('hidden');
+            modal.style.display = 'none'; // Hide modal
             fetchTrips();
         } catch (error) {
             console.error('Error completing trip:', error);
@@ -142,20 +146,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Close modal
-    closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+    closeModalBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.style.display = 'none'; // Hide modal
+    });
     window.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.add('hidden');
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none'; // Hide modal
+        }
     });
 
     // Navigation and data fetching
-    document.querySelector('nav a[href="#reports-section"]').addEventListener('click', (e) => {
+    reportsNav.addEventListener('click', (e) => {
         e.preventDefault();
         bookingSection.classList.add('hidden');
         reportsSection.classList.remove('hidden');
         fetchTrips();
     });
 
-    document.querySelector('nav a[href="#booking-section"]').addEventListener('click', (e) => {
+    bookingNav.addEventListener('click', (e) => {
         e.preventDefault();
         reportsSection.classList.add('hidden');
         bookingSection.classList.remove('hidden');
@@ -185,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
             row.dataset.tripId = trip.tripId;
 
             const statusText = getStatusText(trip);
-            const statusClass = getStatusClass(trip.status);
+            const statusClass = getStatusClass(trip);
 
             row.innerHTML = `
                 <td>${trip.tripId}</td>
@@ -203,12 +213,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return 'Created';
     }
 
-    function getStatusClass(status) {
-        switch(status) {
-            case 'completed': return 'status-completed';
-            case 'in-progress': return 'status-in-progress';
-            default: return 'status-created';
-        }
+    function getStatusClass(trip) {
+        if (trip.status === 'completed') return 'status-completed';
+        if (trip.driverName) return 'status-in-progress';
+        return 'status-created';
     }
 
     function calculateDuration(start, end) {
