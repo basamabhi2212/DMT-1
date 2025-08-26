@@ -1,55 +1,154 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    padding: 20px;
+:root {
+    --primary-color: #5cb85c;
+    --secondary-color: #4cae4c;
+    --background-color: #f4f4f4;
+    --text-color: #333;
+    --border-color: #ddd;
+    --white: #fff;
+    --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.form-container, #trip-details {
-    background: #fff;
-    padding: 20px;
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    margin: 0;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+header {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 1rem 0;
+    text-align: center;
+}
+
+header nav a {
+    color: var(--white);
+    text-decoration: none;
+    padding: 0 15px;
+    font-weight: bold;
+}
+
+main {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+section {
+    background: var(--white);
+    padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 500px;
+    box-shadow: var(--shadow);
     margin-bottom: 20px;
+}
+
+.form-container, .reports-container {
+    padding: 20px;
 }
 
 h2 {
     text-align: center;
-    color: #333;
+    color: var(--primary-color);
+    margin-bottom: 20px;
 }
 
-form label, p {
+form label, .input-group {
     display: block;
-    margin-top: 10px;
-    color: #555;
+    margin-bottom: 5px;
 }
 
 form input, form select, button {
     width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
     box-sizing: border-box;
 }
 
 button {
-    background-color: #5cb85c;
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--white);
     border: none;
     cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #4cae4c;
+    background-color: var(--secondary-color);
 }
 
 .hidden {
     display: none;
+}
+
+/* Reports Table */
+#trips-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#trips-table th, #trips-table td {
+    border: 1px solid var(--border-color);
+    padding: 12px;
+    text-align: left;
+}
+
+#trips-table th {
+    background-color: #e9ecef;
+    font-weight: bold;
+}
+
+#trips-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Modal for Trip Details */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: var(--white);
+    padding: 25px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: var(--shadow);
+    position: relative;
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 20px 0;
 }
