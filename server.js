@@ -4,8 +4,10 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Enable CORS for all requests from any origin
 app.use(cors());
+
+// Parse JSON request bodies
 app.use(express.json());
 
 // In-memory "database"
@@ -54,6 +56,11 @@ app.put('/api/trips/:id', (req, res) => {
     } else {
         res.status(404).send('Trip not found');
     }
+});
+
+// A simple root endpoint to confirm the server is running
+app.get('/', (req, res) => {
+    res.send('Trip Management API is running!');
 });
 
 app.listen(PORT, () => {
