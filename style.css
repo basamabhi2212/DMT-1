@@ -1,0 +1,17 @@
+/*
+ * Custom styles for the Trip Booking & Estimation application.
+ * Most styling is handled by the linked Bootstrap dark theme.
+ */
+
+/* Example: Increase the font size for the Total Price */
+#result .h4 {
+    font-size: 1.75rem;
+    color: #4CAF50; /* A soft green color */
+}
+
+/* Example: Add a slight animation to the main button on hover */
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease-in-out;
+}
